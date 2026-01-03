@@ -1,0 +1,2818 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>私 人 档 案 馆 · itspomme</title>
+<meta name="description" content="一个页面，收纳你的 3 本私人档案册。左侧书架，右侧阅读。内容原封不动嵌入。" />
+<style>
+  :root{
+    /* 奶杏 + 淡橙 + 毛玻璃 */
+    --bg: #faf6f1;
+    --bg2:#fff4ec;
+    --ink:#2b2b2b;
+    --muted:#7a7a7a;
+
+    --card: rgba(255,255,255,.72);
+    --card2: rgba(255,255,255,.88);
+    --stroke: rgba(200,170,140,.35);
+    --stroke2: rgba(180,150,120,.25);
+
+    --shadow: 0 22px 58px rgba(120,90,70,.18);
+    --shadow2: 0 14px 36px rgba(120,90,70,.14);
+
+    --radius-xl: 24px;
+    --radius-lg: 18px;
+    --radius-md: 14px;
+    --pill: 999px;
+
+    --mail:  #f2a86b;
+    --bank:  #2a7de1;
+    --apple: #b06737;
+
+    --glass: blur(14px);
+  }
+
+  *{ box-sizing:border-box; }
+  html, body{ height:100%; }
+  body{
+    margin:0;
+    font-family: -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"PingFang SC","Microsoft YaHei",sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 10% 12%, rgba(255,213,175,.58) 0, transparent 56%),
+      radial-gradient(circle at 90% 18%, rgba(196,223,255,.45) 0, transparent 54%),
+      radial-gradient(circle at 70% 88%, rgba(210,245,220,.28) 0, transparent 55%),
+      linear-gradient(135deg, var(--bg), var(--bg2));
+    padding: 18px 14px 22px;
+  }
+
+  /* 外层 */
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  /* 顶部：标题（轻） */
+  .topbar{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .logo{
+    width: 38px;
+    height: 38px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #f7cf9b, #f1aa7a);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 12px 26px rgba(210,140,90,.32);
+    color:#fff;
+    font-size: 18px;
+    flex: 0 0 auto;
+  }
+  .brand h1{
+    margin:0;
+    font-size: 18px;
+    letter-spacing:.08em;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .brand .sub{
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    white-space: pre-line;
+  }
+  .brand-text{ min-width:0; }
+  .chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap: 8px;
+    align-items:center;
+    justify-content:flex-end;
+  }
+  .chip{
+    font-size: 11px;
+    color: rgba(80,60,45,.78);
+    background: rgba(255,255,255,.62);
+    border: 1px solid rgba(180,150,120,.22);
+    border-radius: var(--pill);
+    padding: 6px 10px;
+    backdrop-filter: var(--glass);
+    -webkit-backdrop-filter: var(--glass);
+  }
+
+  /* 主体：左右分栏 */
+  .layout{
+    display:grid;
+    grid-template-columns: 330px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  /* 左侧：书架 */
+  .shelf{
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow2);
+    backdrop-filter: var(--glass);
+    -webkit-backdrop-filter: var(--glass);
+    padding: 14px;
+    position: sticky;
+    top: 14px;
+  }
+
+  .shelf-head{
+    padding: 10px 10px 12px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(255,255,255,.82), rgba(255,248,239,.70));
+    border: 1px solid rgba(245,183,140,.28);
+    position: relative;
+    overflow:hidden;
+  }
+  .shelf-head:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,213,175,.45) 0, transparent 58%),
+      radial-gradient(circle at 90% 12%, rgba(196,223,255,.35) 0, transparent 58%);
+    pointer-events:none;
+  }
+  .shelf-head-inner{
+    position:relative;
+    z-index:1;
+  }
+  .shelf-title{
+    margin:0 0 6px;
+    font-size: 14px;
+    letter-spacing:.1em;
+    font-weight: 700;
+  }
+  .shelf-desc{
+    margin:0;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.65;
+    white-space: pre-line;
+  }
+
+  .books{
+    margin-top: 12px;
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+  }
+
+  /* 书本卡片（封面） */
+  .book{
+    position: relative;
+    border-radius: 18px;
+    border: 1px solid rgba(180,150,120,.24);
+    background: rgba(255,255,255,.76);
+    overflow:hidden;
+    cursor:pointer;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    box-shadow: 0 10px 22px rgba(120,90,70,.10);
+  }
+  .book:hover{ transform: translateY(-2px); box-shadow: 0 16px 30px rgba(120,90,70,.14); }
+  .book.active{
+    transform: translateY(-4px);
+    box-shadow: 0 22px 46px rgba(120,90,70,.18);
+    border-color: rgba(245,183,140,.55);
+  }
+
+  .book::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      radial-gradient(circle at 12% 12%, rgba(255,255,255,.85) 0, transparent 52%),
+      linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,248,239,.70));
+    opacity: .9;
+    pointer-events:none;
+  }
+
+  /* 书脊 */
+  .spine{
+    position:absolute;
+    left:0; top:0; bottom:0;
+    width: 12px;
+    background: rgba(200,170,140,.20);
+  }
+  .book.mail .spine{ background: rgba(242,168,107,.35); }
+  .book.bank .spine{ background: rgba(42,125,225,.35); }
+  .book.apple .spine{ background: rgba(176,103,55,.30); }
+
+  .book-inner{
+    position:relative;
+    z-index:1;
+    padding: 12px 12px 12px 18px;
+    display:flex;
+    gap: 10px;
+    align-items:flex-start;
+  }
+
+  .icon{
+    width: 40px;
+    height: 40px;
+    border-radius: 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    box-shadow: 0 14px 28px rgba(120,90,70,.16);
+    flex: 0 0 auto;
+    font-size: 18px;
+  }
+  .book.mail .icon{ background: linear-gradient(135deg, rgba(242,168,107,1), rgba(245,190,130,1)); }
+  .book.bank .icon{ background: linear-gradient(135deg, rgba(42,125,225,1), rgba(120,180,255,1)); }
+  .book.apple .icon{ background: linear-gradient(135deg, rgba(176,103,55,1), rgba(236,197,155,1)); }
+
+  .book-meta{ min-width:0; }
+  .book-name{
+    margin: 2px 0 2px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+  }
+  .book-line{
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.55;
+    white-space: pre-line;
+  }
+  .book-tags{
+    margin-top: 8px;
+    display:flex;
+    flex-wrap:wrap;
+    gap: 6px;
+  }
+  .tag{
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: var(--pill);
+    border: 1px solid rgba(180,150,120,.22);
+    background: rgba(255,255,255,.72);
+    color: rgba(90,70,55,.78);
+  }
+  .tag.lock{
+    border-color: rgba(42,125,225,.35);
+    color: rgba(42,125,225,.88);
+    background: rgba(42,125,225,.08);
+  }
+
+  /* 右侧：阅读区 */
+  .reader{
+    background: var(--card);
+    border: 1px solid var(--stroke);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    backdrop-filter: var(--glass);
+    -webkit-backdrop-filter: var(--glass);
+    overflow:hidden;
+  }
+
+  .reader-top{
+    padding: 10px 12px;
+    background: rgba(255,255,255,.62);
+    border-bottom: 1px solid var(--stroke2);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+  }
+
+  .reader-title{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    min-width:0;
+  }
+  .pill{
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: var(--pill);
+    border: 1px solid rgba(180,150,120,.22);
+    background: rgba(255,255,255,.70);
+    color: rgba(80,60,45,.78);
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .pill .dot{
+    width: 8px; height: 8px; border-radius: 999px;
+    background: #bbb;
+  }
+  .pill.mail .dot{ background: var(--mail); }
+  .pill.bank .dot{ background: var(--bank); }
+  .pill.apple .dot{ background: var(--apple); }
+
+  .reader-name{
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+  }
+  .reader-name b{ color: rgba(50,40,30,.92); }
+
+  .reader-actions{
+    display:flex;
+    gap: 8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .btn{
+    border: 1px solid rgba(180,150,120,.22);
+    background: rgba(255,255,255,.72);
+    color: rgba(85,65,50,.86);
+    padding: 7px 10px;
+    border-radius: var(--pill);
+    font-size: 12px;
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+    user-select:none;
+  }
+  .btn:hover{ transform: translateY(-1px); box-shadow: 0 12px 24px rgba(120,90,70,.12); }
+
+  /* 内容加载淡入 */
+  .stage{
+    position: relative;
+  }
+  .fade{
+    animation: fadeIn .25s ease both;
+  }
+  @keyframes fadeIn{
+    from{ opacity: 0; transform: translateY(4px); }
+    to{ opacity: 1; transform: translateY(0); }
+  }
+
+  iframe{
+    width: 100%;
+    height: min(78vh, 980px);
+    border: 0;
+    background: #fff;
+    display:block;
+  }
+
+  /* 弹层全屏 */
+  .modal{
+    position: fixed;
+    inset: 0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding: 14px;
+    background: rgba(18, 14, 10, .55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 9999;
+  }
+  .modal.show{ display:flex; }
+  .modal-card{
+    width: min(1200px, 100%);
+    height: min(94vh, 100%);
+    border-radius: 22px;
+    overflow:hidden;
+    border: 1px solid rgba(255,255,255,.22);
+    background: rgba(255,255,255,.72);
+    box-shadow: 0 26px 80px rgba(0,0,0,.30);
+  }
+  .modal-top{
+    padding: 10px 12px;
+    background: rgba(255,255,255,.70);
+    border-bottom: 1px solid rgba(180,150,120,.22);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+  }
+  .modal-top .left{
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .modal-top .left b{ color: rgba(50,40,30,.92); }
+  .modal-top .right{ display:flex; gap:8px; flex-wrap:wrap; }
+  .modal iframe{ height: calc(100% - 44px); }
+
+  /* 小页脚 */
+  .footer{
+    margin-top: 12px;
+    text-align:center;
+    font-size: 11px;
+    color: rgba(90,70,55,.72);
+  }
+
+  /* 手机端：书架横向滚动，阅读区在下 */
+  @media (max-width: 980px){
+    .layout{ grid-template-columns: 1fr; }
+    .shelf{ position: static; }
+    .books{
+      flex-direction: row;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scroll-snap-type: x mandatory;
+    }
+    .book{
+      min-width: 280px;
+      scroll-snap-align: start;
+    }
+  }
+
+  /* 滚动条（轻） */
+  .books::-webkit-scrollbar{ height: 8px; }
+  .books::-webkit-scrollbar-thumb{
+    background: rgba(180,150,120,.22);
+    border-radius: 999px;
+  }
+  .books::-webkit-scrollbar-track{ background: transparent; }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">🏛️</div>
+      <div class="brand-text">
+        <h1>私 人 档 案 馆</h1>
+        <p class="sub">把重要的东西，放在一个安静的地方。
+左侧拿起一本册子，右侧开始阅读。</p>
+      </div>
+    </div>
+
+    <div class="chips" aria-label="提示">
+      <span class="chip">单页聚合 · 不重改原页</span>
+      <span class="chip">切换更顺滑 · 可全屏</span>
+      <span class="chip">未来可继续加册</span>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- 左侧：书架 -->
+    <aside class="shelf" aria-label="书架">
+      <div class="shelf-head">
+        <div class="shelf-head-inner">
+          <h2 class="shelf-title">书架 · 3 本册子</h2>
+          <p class="shelf-desc">邮箱是身份，银行卡是秩序，
+Apple ID 是通往不同世界的门。</p>
+        </div>
+      </div>
+
+      <div class="books" role="listbox" aria-label="档案册选择">
+        <div class="book mail active" role="option" aria-selected="true" data-doc="mail" tabindex="0">
+          <div class="spine"></div>
+          <div class="book-inner">
+            <div class="icon">📮</div>
+            <div class="book-meta">
+              <div class="book-name">邮箱档案册</div>
+              <p class="book-line">写给世界的名字
+OUTLOOK / GMAIL / QQ / iCloud</p>
+              <div class="book-tags">
+                <span class="tag">主邮箱</span>
+                <span class="tag">辅助邮箱</span>
+                <span class="tag">验证信息</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="book bank" role="option" aria-selected="false" data-doc="bank" tabindex="0">
+          <div class="spine"></div>
+          <div class="book-inner">
+            <div class="icon">💳</div>
+            <div class="book-meta">
+              <div class="book-name">银行卡档案册</div>
+              <p class="book-line">数字需要被收好
+储蓄 / 工资 / 虚拟卡</p>
+              <div class="book-tags">
+                <span class="tag lock">🔒 加密</span>
+                <span class="tag">一键复制</span>
+                <span class="tag">折叠分组</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="book apple" role="option" aria-selected="false" data-doc="apple" tabindex="0">
+          <div class="spine"></div>
+          <div class="book-inner">
+            <div class="icon">🍏</div>
+            <div class="book-meta">
+              <div class="book-name">Apple ID · 外区</div>
+              <p class="book-line">通往不同世界的入口
+US / JP / TR / AR …</p>
+              <div class="book-tags">
+                <span class="tag">外区</span>
+                <span class="tag">手机号</span>
+                <span class="tag">工具登录</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 右侧：阅读区 -->
+    <main class="reader" aria-label="阅读区">
+      <div class="reader-top">
+        <div class="reader-title">
+          <span id="pill" class="pill mail"><span class="dot"></span>正在阅读</span>
+          <div class="reader-name">当前：<b id="docName">邮箱档案册</b></div>
+        </div>
+
+        <div class="reader-actions">
+          <button class="btn" id="btnTop" type="button">回到顶部</button>
+          <button class="btn" id="btnReload" type="button">刷新本册</button>
+          <button class="btn" id="btnFullscreen" type="button">全屏阅读</button>
+          <button class="btn" id="btnNewTab" type="button">新标签打开</button>
+        </div>
+      </div>
+
+      <div class="stage fade" id="stage">
+        <iframe id="frame" title="档案内容"></iframe>
+      </div>
+    </main>
+
+  </div>
+
+  <div class="footer">itspomme · 私人档案馆（更狠版）</div>
+</div>
+
+<!-- 全屏弹层 -->
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-top">
+      <div class="left">全屏阅读：<b id="modalName">邮箱档案册</b></div>
+      <div class="right">
+        <button class="btn" id="btnModalNewTab" type="button">新标签打开</button>
+        <button class="btn" id="btnClose" type="button">关闭</button>
+      </div>
+    </div>
+    <iframe id="modalFrame" title="全屏档案内容"></iframe>
+  </div>
+</div>
+
+<!--
+  ✅ 关键设计：把你原来的 3 个页面“原封不动”塞进 template。
+  你只需要做一件事：
+  1) 打开这个文件
+  2) 找到下面 3 个 template
+  3) 把你原来的完整 HTML（从 <!doctype ...> 到 </html>）分别替换进去
+  其它任何地方都不要改。
+-->
+
+<template id="doc-mail">
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>邮箱档案册 · itspomme</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f9f3ea;
+      --bg-deeper: #f4e7d7;
+      --card-bg: rgba(255, 255, 255, 0.86);
+      --card-border: #f3c9a6;
+      --text-main: #4b463f;
+      --text-soft: #7a7166;
+      --accent: #f5b78c;
+      --accent-blue: #7daedc;
+      --accent-red: #e58a8a;
+      --accent-green: #8cbf9f;
+      --accent-orange: #f2a86b;
+      --accent-gray: #c1b6aa;
+      --shadow-soft: 0 18px 40px rgba(150, 120, 90, 0.16);
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-pill: 999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui,
+        "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at top left, #fdf6ed 0, #f9f3ea 45%, #f4e7d7 100%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+      padding: 24px 16px 40px;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    header.page-header {
+      margin-bottom: 24px;
+      padding: 20px 18px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(255, 248, 239, 0.96));
+      border: 1px solid rgba(245, 183, 140, 0.45);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header.page-header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top left, rgba(255, 213, 175, 0.45) 0, transparent 55%),
+        radial-gradient(circle at bottom right, rgba(196, 223, 255, 0.38) 0, transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    header.page-header-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .page-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .page-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #f7cf9b, #f1aa7a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 18px;
+      box-shadow: 0 10px 25px rgba(210, 140, 90, 0.35);
+    }
+
+    h1.page-title {
+      font-size: 22px;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: var(--text-soft);
+      line-height: 1.7;
+      margin-top: 4px;
+      white-space: pre-line;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .chip {
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(120, 90, 60, 0.15);
+      background: rgba(255, 255, 255, 0.85);
+      color: var(--text-soft);
+    }
+
+    nav.top-nav {
+      margin: 20px 0 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    nav.top-nav a {
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: var(--radius-pill);
+      text-decoration: none;
+      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(184, 160, 130, 0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    nav.top-nav a span.dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    nav.top-nav a.section-outlook .dot { background: var(--accent-blue); }
+    nav.top-nav a.section-gmail .dot { background: var(--accent-red); }
+    nav.top-nav a.section-qq .dot { background: var(--accent-green); }
+    nav.top-nav a.section-apple .dot { background: var(--accent-gray); }
+    nav.top-nav a.section-aliyun .dot { background: var(--accent-blue); }
+    nav.top-nav a.section-sina .dot { background: var(--accent-orange); }
+
+    section.mail-section {
+      margin-bottom: 24px;
+      padding: 18px 14px 18px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(230, 190, 150, 0.65);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 30px rgba(150, 120, 90, 0.18);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      position: relative;
+    }
+
+    section.mail-section + section.mail-section {
+      margin-top: 12px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .section-badge {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 8px 20px rgba(120, 120, 120, 0.25);
+    }
+
+    .section-badge span.square {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .section-outlook .section-badge {
+      background: linear-gradient(135deg, #6ea8da, #9fc5f5);
+    }
+
+    .section-gmail .section-badge {
+      background: linear-gradient(135deg, #e97373, #f4a0a0);
+    }
+
+    .section-qq .section-badge {
+      background: linear-gradient(135deg, #79b89c, #9dd4b5);
+    }
+
+    .section-apple .section-badge {
+      background: linear-gradient(135deg, #a8aeb8, #c3c8cf);
+    }
+
+    .section-aliyun .section-badge {
+      background: linear-gradient(135deg, #7daedc, #97c3ec);
+    }
+
+    .section-sina .section-badge {
+      background: linear-gradient(135deg, #f1a15b, #f7c28e);
+    }
+
+    .section-title-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .section-title-text h2 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+    }
+
+    .section-subtitle {
+      font-size: 12px;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 720px) {
+      .card-grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .card-grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .card {
+      border-radius: var(--radius-md);
+      border: 1px dashed rgba(210, 170, 130, 0.7);
+      padding: 10px 11px;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      position: relative;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 245, 235, 0.9));
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .card-index {
+      font-size: 11px;
+      color: var(--text-soft);
+      white-space: nowrap;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 4px;
+      margin-top: 2px;
+    }
+
+    .tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(190, 160, 130, 0.5);
+      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .tag-main {
+      border-color: rgba(240, 160, 110, 0.9);
+      color: #c06a34;
+      background: rgba(245, 190, 130, 0.12);
+    }
+
+    .tag-group {
+      border-color: rgba(125, 168, 220, 0.85);
+      color: #4175b1;
+      background: rgba(125, 168, 220, 0.12);
+    }
+
+    .tag-series {
+      border-color: rgba(137, 180, 148, 0.85);
+      color: #4c7b5b;
+      background: rgba(137, 180, 148, 0.12);
+    }
+
+    .tag-safe {
+      border-color: rgba(222, 151, 151, 0.9);
+      color: #b15757;
+      background: rgba(229, 138, 138, 0.12);
+    }
+
+    .info-list {
+      list-style: none;
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--text-soft);
+      line-height: 1.7;
+    }
+
+    .info-list li {
+      display: flex;
+      gap: 4px;
+      align-items: baseline;
+    }
+
+    .info-label {
+      white-space: nowrap;
+    }
+
+    .info-value {
+      word-break: break-all;
+    }
+
+    .divider {
+      border-top: 1px dashed rgba(190, 160, 130, 0.5);
+      margin: 9px 0 6px;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      padding: 16px 14px 14px;
+      border-radius: var(--radius-lg);
+      border: 1px dashed rgba(210, 180, 150, 0.9);
+      background: rgba(255, 253, 249, 0.96);
+      color: var(--text-soft);
+      font-size: 12px;
+      line-height: 1.8;
+      text-align: left;
+      white-space: pre-line;
+    }
+
+    .footer-note em {
+      font-style: normal;
+      color: #b16735;
+    }
+
+    /* 小小页脚 */
+    footer.page-footer {
+      margin-top: 22px;
+      font-size: 11px;
+      color: var(--text-soft);
+      text-align: center;
+    }
+
+    footer.page-footer span.dot {
+      margin: 0 6px;
+      opacity: 0.55;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="page-header">
+      <div class="page-header-inner">
+        <div class="page-title-row">
+          <div class="page-icon">📚</div>
+          <h1 class="page-title">邮箱档案册</h1>
+        </div>
+        <p class="page-subtitle">
+奶杏底色、淡橙边线。
+把散落在数字世界里的名字，收入一册安静的簿。
+轻轻翻页，每一张卡片都是某段时间的自己。</p>
+        <div class="chips">
+          <div class="chip">奶杏底色 · 淡橙边线</div>
+          <div class="chip">OUTLOOK / GMAIL / QQ / iCloud</div>
+          <div class="chip">主邮箱 · 辅助邮箱 · 验证信息</div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="top-nav">
+      <a href="#outlook" class="section-outlook"><span class="dot"></span>OUTLOOK · 卡片区</a>
+      <a href="#gmail" class="section-gmail"><span class="dot"></span>GMAIL · 卡片区</a>
+      <a href="#qqmail" class="section-qq"><span class="dot"></span>QQ 邮箱</a>
+      <a href="#apple" class="section-apple"><span class="dot"></span>苹果邮箱</a>
+      <a href="#aliyun" class="section-aliyun"><span class="dot"></span>阿里云邮箱</a>
+      <a href="#sina" class="section-sina"><span class="dot"></span>新浪邮箱</a>
+    </nav>
+
+    <!-- OUTLOOK -->
+    <section class="mail-section section-outlook" id="outlook">
+      <div class="section-header">
+        <div class="section-badge">
+          <span class="square"></span>
+          🟦 OUTLOOK
+        </div>
+        <div class="section-title-text">
+          <h2>OUTLOOK · 卡片区</h2>
+          <p class="section-subtitle">
+带着一点岛屿空气的浅色卡片。
+它们安静、规整，像是写给未来的备忘。</p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <!-- 1 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">① itspomme@outlook.com</div>
+              <div class="card-index">基础卡</div>
+            </div>
+            <div class="tags">
+              <span class="tag tag-group">别名组</span>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">别名：</span>
+                <span class="info-value">itspomme1@outlook.com</span>
+              </li>
+              <li>
+                <span class="info-label"></span>
+                <span class="info-value">itspomme2@outlook.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 2 主邮箱卡 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">② itspommehub@outlook.com</div>
+              <div class="card-index">主邮箱卡</div>
+            </div>
+            <div class="tags">
+              <span class="tag tag-main">主邮箱卡</span>
+              <span class="tag tag-group">别名组</span>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">别名：</span>
+                <span class="info-value">itspommejava@outlook.com</span>
+              </li>
+              <li>
+                <span class="info-label"></span>
+                <span class="info-value">itspommedev@outlook.com</span>
+              </li>
+              <li>
+                <span class="info-label"></span>
+                <span class="info-value">itspommelab@outlook.com</span>
+              </li>
+              <li>
+                <span class="info-label"></span>
+                <span class="info-value">itspommeroot@outlook.com</span>
+              </li>
+            </ul>
+
+            <div class="divider"></div>
+
+            <ul class="info-list">
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">17625393442</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 3 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">③ itspommehtml@outlook.com</div>
+              <div class="card-index">辅助卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">17625293442</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 4 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">④ itspommeweb@outlook.com</div>
+              <div class="card-index">辅助卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 5 系列邮箱 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑤ itspomme(0 / 3 / 5 / 6 / 7 / 9 / x)@outlook.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <div class="tags">
+              <span class="tag tag-series">系列邮箱</span>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">备注：</span>
+                <span class="info-value">系列邮箱：无独立备注。</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- GMAIL -->
+    <section class="mail-section section-gmail" id="gmail">
+      <div class="section-header">
+        <div class="section-badge">
+          <span class="square"></span>
+          🟥 GMAIL
+        </div>
+        <div class="section-title-text">
+          <h2>GMAIL · 卡片区</h2>
+          <p class="section-subtitle">
+奶杏色偏暖，像黄昏时分的海平线。
+各自站在风里，却都通往你的生活。</p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <!-- 1 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">① itspommexyz@gmail.com</div>
+              <div class="card-index">验证 / Hub</div>
+            </div>
+            <div class="tags">
+              <span class="tag tag-safe">验证专用</span>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">注册电话：</span>
+                <span class="info-value">17625293443</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 2 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">② itspommedev@gmail.com</div>
+              <div class="card-index">开发向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">注册手机：</span>
+                <span class="info-value">无（iPad 注册）</span>
+              </li>
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">辅助联系人：</span>
+                <span class="info-value">itspomme7@gmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 3 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">③ itspommehtml@gmail.com</div>
+              <div class="card-index">HTML 向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">注册手机：</span>
+                <span class="info-value">18606275947</span>
+              </li>
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">17625293442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 4 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">④ itspommeweb@gmail.com</div>
+              <div class="card-index">Web 向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">注册手机：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 5 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑤ itspommejava@gmail.com</div>
+              <div class="card-index">Java 向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">注册电话：</span>
+                <span class="info-value">17625293442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助联系人：</span>
+                <span class="info-value">itspommehub@gmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">备用邮箱：</span>
+                <span class="info-value">itspommehub@foxail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 6 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑥ itspommelab@gmail.com</div>
+              <div class="card-index">Lab 向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">注册电话：</span>
+                <span class="info-value">13024543324</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@gmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">辅助联系人：</span>
+                <span class="info-value">itspomme7@gmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 7 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑧ itspommer@gmail.com</div>
+              <div class="card-index">个人向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">注册电话：</span>
+                <span class="info-value">17625293442</span>
+              </li>
+              <li>
+                <span class="info-label">密码：</span>
+                <span class="info-value">6z...127</span>
+              </li>
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">17625293442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">17625293442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 8 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑨ itspomm7@gmail.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 9 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑩ itspommx@gmail.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">注册电话：</span>
+                <span class="info-value">17625393442</span>
+              </li>
+              <li>
+                <span class="info-label">密码：</span>
+                <span class="info-value">6z...127</span>
+              </li>
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">17625393442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">17625293442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 10 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑪ itspomme0@gmail.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 11 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑫ itspomme1@gmail.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">17625393442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">17625293442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 12 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑬itspomme2@gmail.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">17625393442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">17625293442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 13 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑭ itspomme3@gmail.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">17625393442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">17625293442</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 14 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑮ itspomme6@gmail.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 15 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑯ itspomme9@gmail.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 16 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑰ itsElmasss@gmail.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 17 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑱ itspomme11@gmail.com</div>
+              <div class="card-index">系列卡</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">两步验证：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助电话：</span>
+                <span class="info-value">19026484584</span>
+              </li>
+              <li>
+                <span class="info-label">辅助邮箱：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- QQ 邮箱 -->
+    <section class="mail-section section-qq" id="qqmail">
+      <div class="section-header">
+        <div class="section-badge">
+          <span class="square"></span>
+          🟩 QQ 邮箱
+        </div>
+        <div class="section-title-text">
+          <h2>QQ 邮箱 · 抽屉区</h2>
+          <p class="section-subtitle">
+这些账号像编号的抽屉。
+推开，每一格都有独立的小世界。</p>
+        </div>
+      </div>
+
+      <div class="card-grid two">
+        <!-- 1 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">① 1071898008</div>
+              <div class="card-index">Hub</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">foxmail：</span>
+                <span class="info-value">itspommehub@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">qq：</span>
+                <span class="info-value">itspommehub@qq.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 2 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">② 2422639949</div>
+              <div class="card-index">j 向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">foxmail：</span>
+                <span class="info-value">itspommej@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">qq：</span>
+                <span class="info-value">itspomme@qq.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 3 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">③ 417564454</div>
+              <div class="card-index">Java 向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">foxmail：</span>
+                <span class="info-value">itspommejava@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">qq：</span>
+                <span class="info-value">itspommejava@qq.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 4 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">④ 192988337</div>
+              <div class="card-index">Lab 向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">foxmail：</span>
+                <span class="info-value">itspommelab@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">fqq：</span>
+                <span class="info-value">itspommelab@fqq.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 5 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑤ 3325819877</div>
+              <div class="card-index">7 向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">foxmail：</span>
+                <span class="info-value">itspomme7@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">qq：</span>
+                <span class="info-value">itspomme7@qq.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 6 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑥ 3761652021</div>
+              <div class="card-index">Web 向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">foxmail：</span>
+                <span class="info-value">itspommeweb@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">qq：</span>
+                <span class="info-value">itspommeweb@qq.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 7 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">⑦ 3908079020</div>
+              <div class="card-index">HTML 向</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">foxmail：</span>
+                <span class="info-value">itspommehtml@foxmail.com</span>
+              </li>
+              <li>
+                <span class="info-label">qq：</span>
+                <span class="info-value">itspommehtml@qq.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 苹果邮箱 -->
+    <section class="mail-section section-apple" id="apple">
+      <div class="section-header">
+        <div class="section-badge">
+          <span class="square"></span>
+          🍏 苹果邮箱
+        </div>
+        <div class="section-title-text">
+          <h2>苹果邮箱 · 云端灯塔</h2>
+          <p class="section-subtitle">
+这里的每一个地址，都像云里的灯塔。</p>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <!-- Apple ID -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">Apple ID：itspomme@outlook.com（汽水）</div>
+              <div class="card-index">Apple ID</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">登录入口：</span>
+                <span class="info-value">https://www.icloud.com.cn/mail/</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- iCloud 系列 -->
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">iCloud 系列</div>
+              <div class="card-index">云端</div>
+            </div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">iCloud：</span>
+                <span class="info-value">itspomme@icloud.com</span>
+              </li>
+              <li>
+                <span class="info-label"></span>
+                <span class="info-value">itspommehub@icloud.com</span>
+              </li>
+              <li>
+                <span class="info-label"></span>
+                <span class="info-value">itspommedev@icloud.com</span>
+              </li>
+              <li>
+                <span class="info-label"></span>
+                <span class="info-value">itspommeroot@icloud.com</span>
+              </li>
+            </ul>
+            <div class="divider"></div>
+            <ul class="info-list">
+              <li>
+                <span class="info-label">系列：</span>
+                <span class="info-value">itspomme(369)@icloud.com</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 阿里云 -->
+    <section class="mail-section section-aliyun" id="aliyun">
+      <div class="section-header">
+        <div class="section-badge">
+          <span class="square"></span>
+          🟦 阿里云邮箱
+        </div>
+        <div class="section-title-text">
+          <h2>阿里云邮箱</h2>
+        </div>
+      </div>
+
+      <div class="card-grid two">
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">itspomme@aliyun.com</div>
+              <div class="card-index">阿里云</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">itspomme7@aliyun.com</div>
+              <div class="card-index">阿里云</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 新浪 -->
+    <section class="mail-section section-sina" id="sina">
+      <div class="section-header">
+        <div class="section-badge">
+          <span class="square"></span>
+          🟧 新浪邮箱
+        </div>
+        <div class="section-title-text">
+          <h2>新浪邮箱</h2>
+        </div>
+      </div>
+
+      <div class="card-grid three">
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">itspomme@sina.com</div>
+              <div class="card-index">新浪</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">itspommex@sina.com</div>
+              <div class="card-index">新浪</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">itspomme7@sina.com</div>
+              <div class="card-index">新浪</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-inner">
+            <div class="card-header-row">
+              <div class="card-title">itspommes@sina.com</div>
+              <div class="card-index">新浪</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- 尾页 -->
+    <section class="mail-section" id="tail">
+      <div class="section-header">
+        <div class="section-badge" style="background: linear-gradient(135deg,#d8c0a8,#f2d3af); color:#655547;">
+          <span class="square"></span>
+          🌾 尾页 · 轻轻一语
+        </div>
+      </div>
+
+      <div class="footer-note">
+把这么多名字放在一起，
+像把走过的路理了一遍。
+愿每一个邮箱，都为你打开一扇小小的、<em>温柔的窗</em>。
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      <span>itspomme · 邮箱档案册</span>
+      <span class="dot">·</span>
+      <span>整理时间：自己知道就好</span>
+    </footer>
+  </div>
+</body>
+</html>
+
+</template>
+
+
+<template id="doc-bank">
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>银行卡档案册</title>
+
+<style>
+  :root {
+    --bg: #f5f5f7;
+    --card-bg: #fff;
+    --line: #e5e5e7;
+    --text-main: #1d1d1f;
+    --text-soft: #6e6e73;
+    --blue: #0071e3;
+    --radius: 12px;
+  }
+
+  body {
+    margin: 0;
+    padding: 32px 16px 60px;
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    color: var(--text-main);
+  }
+
+  .page { max-width: 860px; margin: 0 auto; }
+
+  /* 密码锁 */
+  .lock-wrapper {
+    max-width: 380px;
+    margin: 80px auto 0;
+    padding: 26px 22px;
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+  }
+
+  .lock-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+  .lock-desc { font-size: 13px; color: var(--text-soft); margin-bottom: 20px; }
+
+  .lock-form { display: flex; gap: 10px; }
+
+  .lock-input {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #fafafa;
+  }
+
+  .lock-btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    background: var(--blue);
+    color: white;
+    cursor: pointer;
+  }
+
+  #content { display: none; }
+
+  /* 标题 */
+  header {
+    margin-top: 30px;
+    background: var(--card-bg);
+    padding: 24px 22px;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+  }
+
+  h1 { margin: 0 0 6px; font-size: 22px; }
+  .subtitle { font-size: 13px; color: var(--text-soft); }
+
+  /* 折叠区域 */
+  .bank-block { margin-top: 22px; }
+
+  .bank-title {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 14px 6px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .arrow {
+    transition: 0.2s;
+    font-size: 14px;
+  }
+
+  .bank-content {
+    display: none;
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 6px;
+  }
+
+  .card-item { margin-bottom: 18px; }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-soft);
+    padding-left: 8px;
+    border-left: 2px solid var(--line);
+    margin-bottom: 6px;
+  }
+
+  .tag-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    background: #f2f2f3;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    color: var(--text-soft);
+    white-space: nowrap;
+  }
+
+  .card-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-number {
+    flex: 1;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    font-weight: 500;
+    overflow-wrap: break-word;
+  }
+
+  .copy-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #f2f2f3;
+    border: 1px solid var(--line);
+    display: flex; justify-content: center; align-items: center;
+    cursor: pointer; flex-shrink: 0;
+  }
+
+  .copy-btn svg {
+    width: 16px; height: 16px;
+    stroke: var(--text-soft); fill: none; stroke-width: 1.6;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%; bottom: 26px;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(40,40,44,0.9);
+    color: white;
+    padding: 9px 20px;
+    border-radius: 16px;
+    opacity: 0;
+    transition: 0.2s ease;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+</style>
+</head>
+
+<body>
+<div class="page">
+
+<!-- 密码 -->
+<div id="lock" class="lock-wrapper">
+  <div class="lock-title">银行卡档案 · 加密视图</div>
+  <div class="lock-desc">请输入访问密码。</div>
+
+  <div class="lock-form">
+    <input id="pwd-input" class="lock-input" type="password" placeholder="请输入密码" />
+    <button class="lock-btn" onclick="unlock()">解锁</button>
+  </div>
+
+  <div id="lock-error" style="height:16px; color:#c0392b; margin-top:8px;"></div>
+</div>
+
+<!-- 内容 -->
+<div id="content">
+
+  <header>
+    <h1>银行卡档案册</h1>
+    <div class="subtitle">把数字放回安静的位置，让生活更有序一些。</div>
+  </header>
+
+  <!-- ===== 工商银行 ===== -->
+  <div class="bank-block">
+    <div class="bank-title" onclick="toggleBank(this)">
+      工商银行 <span class="arrow">▶</span>
+    </div>
+
+    <div class="bank-content">
+      <div class="card-item">
+        <div class="card-desc">定存</div>
+        <div class="card-row">
+          <div class="card-number">6222 0223 0800 5838 524</div>
+          <button class="copy-btn" onclick="copyText('6222022308005838524')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-item">
+        <div class="card-desc">工资卡</div>
+        <div class="card-row">
+          <div class="card-number">6212 2611 0203 9867885</div>
+          <button class="copy-btn" onclick="copyText('6212261102039867785')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 建设银行 ===== -->
+  <div class="bank-block">
+    <div class="bank-title" onclick="toggleBank(this)">
+      建设银行 <span class="arrow">▶</span>
+    </div>
+
+    <div class="bank-content">
+      <div class="card-item">
+        <div class="card-desc">工资卡</div>
+        <div class="card-row">
+          <div class="card-number">6217 0020 0007 7037 879</div>
+          <button class="copy-btn" onclick="copyText('6217002000077037879')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 农业银行 ===== -->
+  <div class="bank-block">
+    <div class="bank-title" onclick="toggleBank(this)">
+      农业银行 <span class="arrow">▶</span>
+    </div>
+
+    <div class="bank-content">
+      <div class="card-item">
+        <div class="card-desc">还款</div>
+        <div class="card-row">
+          <div class="card-number">6228 2102 5900 2098 373</div>
+          <button class="copy-btn" onclick="copyText('6228210259002098373')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 邮储银行 ===== -->
+  <div class="bank-block">
+    <div class="bank-title" onclick="toggleBank(this)">
+      邮政储蓄银行 <span class="arrow">▶</span>
+    </div>
+
+    <div class="bank-content">
+      <div class="card-item">
+        <div class="card-desc">储蓄</div>
+        <div class="card-row">
+          <div class="card-number">6217 9930 0001 4488 798</div>
+          <button class="copy-btn" onclick="copyText('6217993000014488798')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 招商银行 ===== -->
+  <div class="bank-block">
+    <div class="bank-title" onclick="toggleBank(this)">
+      招商银行 <span class="arrow">▶</span>
+    </div>
+
+    <div class="bank-content">
+      <div class="card-item">
+        <div class="card-desc">定存</div>
+        <div class="card-row">
+          <div class="card-number">6214 8352 1938 6727</div>
+          <button class="copy-btn" onclick="copyText('6214835219386727')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-item">
+        <div class="card-desc">水电房租</div>
+        <div class="card-row">
+          <div class="card-number">6214 8352 2857 0873</div>
+          <button class="copy-btn" onclick="copyText('6214835228570873')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-item">
+        <div class="card-desc">虚拟卡 · 深圳</div>
+        <div class="card-row">
+          <div class="card-number">6212 7600 7897 8905</div>
+          <button class="copy-btn" onclick="copyText('6212760078978905')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== 兴业银行 ===== -->
+  <div class="bank-block">
+    <div class="bank-title" onclick="toggleBank(this)">
+      兴业银行 <span class="arrow">▶</span>
+    </div>
+
+    <div class="bank-content">
+      <div class="card-item">
+        <div class="card-desc">储蓄</div>
+        <div class="card-row">
+          <div class="card-number">6229 0820 3025 4211 10</div>
+          <button class="copy-btn" onclick="copyText('622908203025421110')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 江苏银行 ===== -->
+  <div class="bank-block">
+    <div class="bank-title" onclick="toggleBank(this)">
+      江苏银行 <span class="arrow">▶</span>
+    </div>
+
+    <div class="bank-content">
+      <div class="card-item">
+        <div class="card-desc">日常</div>
+        <div class="card-row">
+          <div class="card-number">6228 7602 0500 9406 873</div>
+          <button class="copy-btn" onclick="copyText('6228760205009406873')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 中信银行（含三个标签） ===== -->
+  <div class="bank-block">
+    <div class="bank-title" onclick="toggleBank(this)">
+      中信银行 <span class="arrow">▶</span>
+    </div>
+
+    <div class="bank-content">
+
+      <div class="card-item">
+        <div class="tag-row">
+          <div class="tag">虚拟消费</div>
+          <div class="tag">08/30</div>
+          <div class="tag">894</div>
+        </div>
+
+        <div class="card-row">
+          <div class="card-number">5224 0120 0000 9452 8</div>
+          <button class="copy-btn" onclick="copyText('5224012000094528')">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  const PASSWORD = "7";
+
+  function unlock() {
+    const input = document.getElementById("pwd-input");
+    const error = document.getElementById("lock-error");
+    if (input.value.trim() === PASSWORD) {
+      document.getElementById("lock").style.display = "none";
+      document.getElementById("content").style.display = "block";
+    } else {
+      error.textContent = "密码错误";
+      input.value = "";
+    }
+  }
+
+  function toggleBank(title) {
+    const block = title.nextElementSibling;
+    const arrow = title.querySelector(".arrow");
+
+    if (block.style.display === "block") {
+      block.style.display = "none";
+      arrow.style.transform = "rotate(0deg)";
+    } else {
+      block.style.display = "block";
+      arrow.style.transform = "rotate(90deg)";
+    }
+  }
+
+  function copyText(text) {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast("已复制"))
+      .catch(() => showToast("复制失败"));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 1500);
+  }
+</script>
+
+</body>
+</html>
+
+</template>
+
+
+<template id="doc-apple">
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>🍏 苹果 ID · 外区档案册</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg1: #fbf6ef;
+      --bg2: #f7f1e6;
+      --bg3: #f3e9da;
+      --card-bg: rgba(255, 255, 255, 0.9);
+      --border-soft: rgba(220, 190, 160, 0.5);
+      --text-main: #5b4634;
+      --text-soft: #8a7764;
+      --accent: #eac59b;
+      --accent-deep: #b06737;
+      --shadow-soft: 0 12px 36px rgba(180, 150, 120, 0.18);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2) 45%, var(--bg3));
+      min-height: 100vh;
+      padding: 26px 12px 40px;
+      display: flex;
+      justify-content: center;
+      color: var(--text-main);
+    }
+
+    .page {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(255,255,255,0.75);
+      border-radius: 26px;
+      padding: 20px 16px 26px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--border-soft);
+      backdrop-filter: blur(14px);
+    }
+
+    header {
+      padding-bottom: 12px;
+      border-bottom: 1px dashed rgba(200, 170, 135, 0.6);
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--text-soft);
+      white-space: pre-line;
+    }
+
+    /* Section */
+    .section {
+      margin-top: 18px;
+      padding: 14px 12px;
+      background: rgba(255,255,255,0.85);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(220,190,160,0.45);
+      box-shadow: 0 8px 22px rgba(150,120,90,0.12);
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #7b5638;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 行项目 */
+    .item-row {
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      border-radius: var(--radius-md);
+      background: var(--card-bg);
+      cursor: pointer;
+      transition: 0.15s ease;
+      border: 1px solid rgba(230,200,165,0.4);
+    }
+
+    .item-row:hover {
+      background: #fffaf5;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(160,130,100,0.15);
+    }
+
+    .item-label {
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-bottom: 2px;
+    }
+
+    .item-main {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-deep);
+      word-break: break-all;
+    }
+
+    .tag-row {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #fbe7cd;
+      color: #a2653a;
+    }
+  </style>
+</head>
+
+<body>
+<div class="page">
+
+  <header>
+    <h1>🍏 苹果 ID · 外区档案册</h1>
+    <div class="subtitle">
+把散落在世界各区的 Apple ID 收回一页。
+有序、安静，也轻松。
+    </div>
+  </header>
+
+  <!-- ------------------------ 外区 ID ---------------------------- -->
+  <section class="section">
+    <div class="section-title">🌍 苹果外区 Apple ID</div>
+
+    <div class="item-row" data-copy="itspomme@outlook.com">
+      <div class="item-label">国区 China Mainland</div>
+      <div class="item-main">itspomme@outlook.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspomme3@outlook.com">
+      <div class="item-label">香港 Hong Kong</div>
+      <div class="item-main">itspomme3@outlook.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspomme6@outlook.com">
+      <div class="item-label">台湾 Taiwan</div>
+      <div class="item-main">itspomme6@outlook.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspomme1@gmail.com">
+      <div class="item-label">日本 Japan</div>
+      <div class="item-main">itspomme1@gmail.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspomme2@gmail.com">
+      <div class="item-label">韩国 Korea</div>
+      <div class="item-main">itspomme2@gmail.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspomme3@gmail.com">
+      <div class="item-label">印度 India</div>
+      <div class="item-main">itspomme3@gmail.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspommeweb@gmail.com">
+      <div class="item-label">新加坡 Singapore</div>
+      <div class="item-main">itspommeweb@gmail.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspomme9@gmail.com">
+      <div class="item-label">土耳其 Türkiye</div>
+      <div class="item-main">itspomme9@gmail.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspomme0@gmail.com">
+      <div class="item-label">阿根廷 Argentina</div>
+      <div class="item-main">itspomme0@gmail.com</div>
+    </div>
+
+    <!-- 美国拆分成三行 -->
+    <div class="item-row" data-copy="itspomme7@gmail.com">
+      <div class="item-label">美国 United States</div>
+      <div class="item-main">itspomme7@gmail.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspommer@gmail.com">
+      <div class="item-label">美国 · 备用账号</div>
+      <div class="item-main">itspommer@gmail.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspommex@gmail.com">
+      <div class="item-label">美国 · 备用账号</div>
+      <div class="item-main">itspommex@gmail.com</div>
+    </div>
+  </section>
+
+  <!-- ------------------------ 手机号 ---------------------------- -->
+  <section class="section">
+    <div class="section-title">📞 关联手机号</div>
+
+    <div class="item-row" data-copy="1762529344">
+      <div class="item-label">号码一</div>
+      <div class="item-main">1762529344</div>
+      <div class="tag-row">
+        <div class="tag">国区</div>
+        <div class="tag">香港</div>
+        <div class="tag">韩国</div>
+        <div class="tag">美区 itspommer</div>
+      </div>
+    </div>
+
+
+    <div class="item-row" data-copy="1902648458">
+
+      <div class="item-label">号码二</div>
+      <div class="item-main">1902648458</div>
+      <div class="tag-row">
+       <div class="tag">美区 itspommex</div>
+        <div class="tag">美区 itspomme7</div>
+        <div class="tag">台湾</div>
+        <div class="tag">土耳其</div>
+        <div class="tag">阿根廷</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ------------------------ 科学工具 ---------------------------- -->
+  <section class="section">
+    <div class="section-title">🛰️ 节点工具登录</div>
+
+    <div class="item-row" data-copy="itspommer itspommex itspomme7">
+      <div class="item-label">小火箭 Shadowrocket</div>
+      <div class="item-main">itspommer / itspommex / itspomme7</div>
+    </div>
+
+    <div class="item-row" data-copy="itspomme7">
+      <div class="item-label">Quantumult X（圈 X）</div>
+      <div class="item-main">itspomme7</div>
+    </div>
+
+    <div class="item-row" data-copy="1071898008@qq.com">
+      <div class="item-label">Zoe / AIPYM</div>
+      <div class="item-main">1071898008@qq.com</div>
+    </div>
+
+    <div class="item-row" data-copy="itspomme9@gmail.com">
+      <div class="item-label">Loon</div>
+      <div class="item-main">itspomme9@gmail.com</div>
+    </div>
+  </section>
+
+  <!-- ------------------------ 密码组 ---------------------------- -->
+  <section class="section">
+    <div class="section-title">🔑 密码组（仅自己可见）</div>
+
+    <div class="item-row" data-copy="6Z…123">
+      <div class="item-label">密码一</div>
+      <div class="item-main">@6Z…123</div>
+      <div class="item-label">适用：日本 / 韩国 / 印度 / 新加坡</div>
+    </div>
+
+    <div class="item-row" data-copy="@6Z…123">
+      <div class="item-label">密码二</div>
+      <div class="item-main">6Z…123</div>
+      <div class="item-label">适用：同组衍生密码</div>
+    </div>
+  </section>
+</div>
+
+<!-- 复制脚本 -->
+<script>
+  document.querySelectorAll('.item-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const text = row.getAttribute('data-copy');
+      if (text) {
+        navigator.clipboard.writeText(text);
+        alert("已复制：" + text);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
+
+</template>
+
+
+<script>
+  const meta = {
+    mail:  { name: "邮箱档案册",  theme: "mail",  tpl: "doc-mail"  },
+    bank:  { name: "银行卡档案册", theme: "bank",  tpl: "doc-bank"  },
+    apple: { name: "Apple ID · 外区", theme: "apple", tpl: "doc-apple" },
+  };
+
+  let current = "mail";
+
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+
+  const books = $$(".book");
+  const frame = $("#frame");
+  const stage = $("#stage");
+  const docName = $("#docName");
+  const pill = $("#pill");
+
+  const modal = $("#modal");
+  const modalFrame = $("#modalFrame");
+  const modalName = $("#modalName");
+
+  function getHtml(key){
+    const tpl = document.getElementById(meta[key].tpl);
+    return (tpl?.innerHTML || "").trim();
+  }
+
+  function setActive(key){
+    current = key;
+
+    books.forEach(b => {
+      const active = b.dataset.doc === key;
+      b.classList.toggle("active", active);
+      b.setAttribute("aria-selected", active ? "true" : "false");
+    });
+
+    const html = getHtml(key);
+
+    // 触发淡入
+    stage.classList.remove("fade");
+    void stage.offsetWidth; // reflow
+    stage.classList.add("fade");
+
+    frame.srcdoc = html;
+    docName.textContent = meta[key].name;
+
+    // pill theme
+    pill.className = "pill " + meta[key].theme;
+
+    // modal 同步
+    if (modal.classList.contains("show")){
+      modalFrame.srcdoc = html;
+      modalName.textContent = meta[key].name;
+    }
+  }
+
+  // 点击/键盘
+  books.forEach(b => {
+    b.addEventListener("click", () => setActive(b.dataset.doc));
+    b.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        setActive(b.dataset.doc);
+      }
+    });
+  });
+
+  // actions
+  $("#btnReload").addEventListener("click", () => setActive(current));
+  $("#btnTop").addEventListener("click", () => {
+    try{ frame.contentWindow.scrollTo({ top: 0, behavior: "smooth" }); }catch(_){}
+  });
+
+  function openModal(){
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+    modalFrame.srcdoc = getHtml(current);
+    modalName.textContent = meta[current].name;
+  }
+  function closeModal(){
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+    modalFrame.srcdoc = "";
+  }
+  $("#btnFullscreen").addEventListener("click", openModal);
+  $("#btnClose").addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("show")) closeModal();
+  });
+
+  function openNewTab(){
+    const w = window.open("", "_blank");
+    if (!w) return;
+    const html = getHtml(current);
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  }
+  $("#btnNewTab").addEventListener("click", openNewTab);
+  $("#btnModalNewTab").addEventListener("click", openNewTab);
+
+  // init
+  setActive("mail");
+</script>
+</body>
+</html>
